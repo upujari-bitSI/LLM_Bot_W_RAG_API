@@ -74,6 +74,16 @@ class RAGEngine:
         self.vectorstore.save_local(VECTORSTORE_PATH)
         return len(chunks)
 
+    def _messages_to_prompt(self, messages: list[dict]) -> str:
+        """Convert chat messages to Mistral instruct prompt format."""
+        prompt = ""
+        for msg in messages:
+            if msg["role"] == "system":
+                prompt += f"<s>[INST] {msg['content']}\n"
+            elif msg["role"] == "user":
+                prompt += f"{msg['content']} [/INST]"
+        return prompt
+
     def _build_messages(self, query: str, context: str) -> list[dict]:
         system_msg = (
             "You are a helpful assistant. Use the following context "
@@ -96,15 +106,17 @@ class RAGEngine:
 
         try:
             loop = asyncio.get_event_loop()
+            # Build a text prompt from messages for text_generation API
+            prompt = self._messages_to_prompt(messages)
             response = await loop.run_in_executor(
                 None,
-                lambda: self.client.chat_completion(
+                lambda: self.client.text_generation(
                     model=self.model_id,
-                    messages=messages,
-                    max_tokens=512,
+                    prompt=prompt,
+                    max_new_tokens=512,
                     temperature=0.7,
                 ),
             )
-            yield response.choices[0].message.content
+            yield response
         except Exception as e:
             yield f"Error from model: {type(e).__name__}: {e}"
