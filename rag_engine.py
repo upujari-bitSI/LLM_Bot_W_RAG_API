@@ -1,5 +1,6 @@
 import asyncio
 import os
+import re
 from pathlib import Path
 from typing import AsyncGenerator
 
@@ -103,6 +104,8 @@ class RAGEngine:
                     temperature=0.7,
                 ),
             )
-            yield response.choices[0].message.content
+            content = response.choices[0].message.content
+            content = re.sub(r"<think>[\s\S]*?</think>\s*", "", content)
+            yield content.strip()
         except Exception as e:
             yield f"Error from model: {type(e).__name__}: {e}"
