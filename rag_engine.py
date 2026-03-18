@@ -30,9 +30,10 @@ class RAGEngine:
             huggingfacehub_api_token=self.hf_token if self.hf_token else None,
         )
 
+        self.provider = os.getenv("HF_PROVIDER", "hf-inference")
         self.client = InferenceClient(
-            model=self.model_id,
-            token=self.hf_token if self.hf_token else None,
+            provider=self.provider,
+            api_key=self.hf_token if self.hf_token else None,
         )
 
         self.vectorstore = None
@@ -98,6 +99,7 @@ class RAGEngine:
             response = await loop.run_in_executor(
                 None,
                 lambda: self.client.chat_completion(
+                    model=self.model_id,
                     messages=messages,
                     max_tokens=512,
                     temperature=0.7,
@@ -105,4 +107,4 @@ class RAGEngine:
             )
             yield response.choices[0].message.content
         except Exception as e:
-            yield f"Error from model: {e}"
+            yield f"Error from model: {type(e).__name__}: {e}"
