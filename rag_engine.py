@@ -73,14 +73,17 @@ class RAGEngine:
         self.vectorstore.save_local(VECTORSTORE_PATH)
         return len(chunks)
 
-    def _build_prompt(self, query: str, context: str) -> str:
-        return (
-            f"<s>[INST] You are a helpful assistant. Use the following context "
-            f"to answer the question. If the context doesn't contain relevant "
-            f"information, say so but still try to help.\n\n"
-            f"Context:\n{context}\n\n"
-            f"Question: {query} [/INST]"
+    def _build_messages(self, query: str, context: str) -> list[dict]:
+        system_msg = (
+            "You are a helpful assistant. Use the following context "
+            "to answer the question. If the context doesn't contain relevant "
+            "information, say so but still try to help.\n\n"
+            f"Context:\n{context}"
         )
+        return [
+            {"role": "system", "content": system_msg},
+            {"role": "user", "content": query},
+        ]
 
     async def aquery(self, query: str) -> AsyncGenerator[str, None]:
         context = ""
@@ -88,19 +91,18 @@ class RAGEngine:
             docs = self.vectorstore.similarity_search(query, k=4)
             context = "\n\n".join(doc.page_content for doc in docs)
 
-        prompt = self._build_prompt(query, context)
+        messages = self._build_messages(query, context)
 
         try:
             loop = asyncio.get_event_loop()
             response = await loop.run_in_executor(
                 None,
-                lambda: self.client.text_generation(
-                    prompt,
-                    max_new_tokens=512,
+                lambda: self.client.chat_completion(
+                    messages=messages,
+                    max_tokens=512,
                     temperature=0.7,
-                    repetition_penalty=1.1,
                 ),
             )
-            yield response
+            yield response.choices[0].message.content
         except Exception as e:
             yield f"Error from model: {e}"
