@@ -8,7 +8,7 @@ from huggingface_hub import InferenceClient
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyPDFLoader, TextLoader
 from langchain_community.vectorstores import FAISS
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEndpointEmbeddings
 
 load_dotenv()
 
@@ -25,9 +25,9 @@ class RAGEngine:
             "EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2"
         )
 
-        self.embeddings = HuggingFaceEmbeddings(
-            model_name=self.embedding_model,
-            model_kwargs={"device": "cpu"},
+        self.embeddings = HuggingFaceEndpointEmbeddings(
+            model=self.embedding_model,
+            huggingfacehub_api_token=self.hf_token if self.hf_token else None,
         )
 
         self.client = InferenceClient(
