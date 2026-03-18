@@ -44,7 +44,8 @@ class RAGEngine:
         )
 
     def _load_vectorstore(self):
-        if Path(VECTORSTORE_PATH).exists():
+        index_path = Path(VECTORSTORE_PATH) / "index.faiss"
+        if index_path.exists():
             self.vectorstore = FAISS.load_local(
                 VECTORSTORE_PATH,
                 self.embeddings,
