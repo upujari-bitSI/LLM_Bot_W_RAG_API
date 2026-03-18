@@ -19,7 +19,7 @@ class RAGEngine:
     def __init__(self):
         self.hf_token = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
         self.model_id = os.getenv(
-            "HF_MODEL_ID", "mistralai/Mistral-7B-Instruct-v0.3"
+            "HF_MODEL_ID", "HuggingFaceH4/zephyr-7b-beta"
         )
         self.embedding_model = os.getenv(
             "EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2"
@@ -74,16 +74,6 @@ class RAGEngine:
         self.vectorstore.save_local(VECTORSTORE_PATH)
         return len(chunks)
 
-    def _messages_to_prompt(self, messages: list[dict]) -> str:
-        """Convert chat messages to Mistral instruct prompt format."""
-        prompt = ""
-        for msg in messages:
-            if msg["role"] == "system":
-                prompt += f"<s>[INST] {msg['content']}\n"
-            elif msg["role"] == "user":
-                prompt += f"{msg['content']} [/INST]"
-        return prompt
-
     def _build_messages(self, query: str, context: str) -> list[dict]:
         system_msg = (
             "You are a helpful assistant. Use the following context "
@@ -106,17 +96,15 @@ class RAGEngine:
 
         try:
             loop = asyncio.get_event_loop()
-            # Build a text prompt from messages for text_generation API
-            prompt = self._messages_to_prompt(messages)
             response = await loop.run_in_executor(
                 None,
-                lambda: self.client.text_generation(
+                lambda: self.client.chat_completion(
                     model=self.model_id,
-                    prompt=prompt,
-                    max_new_tokens=512,
+                    messages=messages,
+                    max_tokens=512,
                     temperature=0.7,
                 ),
             )
-            yield response
+            yield response.choices[0].message.content
         except Exception as e:
             yield f"Error from model: {type(e).__name__}: {e}"
