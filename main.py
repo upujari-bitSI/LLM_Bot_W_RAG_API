@@ -9,7 +9,7 @@ from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from rag_engine import RAGEngine
+from rag_engine import RAGEngine, VECTORSTORE_PATH
 
 load_dotenv()
 
@@ -71,6 +71,20 @@ async def chat(request: Request):
 async def list_documents():
     files = [f.name for f in UPLOAD_DIR.iterdir() if f.is_file()]
     return {"documents": files, "has_vectorstore": rag_engine.has_vectorstore()}
+
+
+@app.post("/clear")
+async def clear_documents():
+    # Remove uploaded files
+    for f in UPLOAD_DIR.iterdir():
+        if f.is_file():
+            f.unlink()
+    # Remove vectorstore
+    vs_path = Path(VECTORSTORE_PATH)
+    if vs_path.exists():
+        shutil.rmtree(vs_path)
+    rag_engine.vectorstore = None
+    return {"message": "All documents cleared"}
 
 
 if __name__ == "__main__":

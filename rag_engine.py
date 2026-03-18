@@ -90,17 +90,17 @@ class RAGEngine:
 
         prompt = self._build_prompt(query, context)
 
-        loop = asyncio.get_event_loop()
-        stream = await loop.run_in_executor(
-            None,
-            lambda: self.client.text_generation(
-                prompt,
-                max_new_tokens=512,
-                temperature=0.7,
-                repetition_penalty=1.1,
-                stream=True,
-            ),
-        )
-
-        for token in stream:
-            yield token
+        try:
+            loop = asyncio.get_event_loop()
+            response = await loop.run_in_executor(
+                None,
+                lambda: self.client.text_generation(
+                    prompt,
+                    max_new_tokens=512,
+                    temperature=0.7,
+                    repetition_penalty=1.1,
+                ),
+            )
+            yield response
+        except Exception as e:
+            yield f"Error from model: {e}"

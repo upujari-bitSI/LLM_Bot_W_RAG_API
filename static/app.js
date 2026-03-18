@@ -5,6 +5,7 @@ const sendBtn = document.getElementById('send-btn');
 const fileInput = document.getElementById('file-input');
 const uploadStatus = document.getElementById('upload-status');
 const docList = document.getElementById('doc-list');
+const clearBtn = document.getElementById('clear-btn');
 
 // Load existing documents on page load
 async function loadDocuments() {
@@ -38,6 +39,21 @@ fileInput.addEventListener('change', async (e) => {
         uploadStatus.textContent = 'Upload failed: ' + err.message;
     }
     fileInput.value = '';
+});
+
+// Clear documents
+clearBtn.addEventListener('click', async () => {
+    if (!confirm('Clear all uploaded documents?')) return;
+    try {
+        const res = await fetch('/clear', { method: 'POST' });
+        const data = await res.json();
+        uploadStatus.textContent = data.message;
+        docList.textContent = '';
+        chatMessages.innerHTML = '';
+        loadDocuments();
+    } catch (err) {
+        uploadStatus.textContent = 'Clear failed: ' + err.message;
+    }
 });
 
 // Chat
