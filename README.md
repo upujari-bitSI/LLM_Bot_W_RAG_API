@@ -1,3 +1,12 @@
+---
+title: RAG Chatbot
+emoji: 🤖
+colorFrom: blue
+colorTo: purple
+sdk: docker
+pinned: false
+---
+
 # RAG Chatbot with HuggingFace Models
 
 A ChatGPT-like RAG (Retrieval-Augmented Generation) chatbot built with FastAPI, HuggingFace Inference API, and FAISS vector store. Designed for free deployment on HuggingFace Spaces.
