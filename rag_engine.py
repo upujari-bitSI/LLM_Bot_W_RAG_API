@@ -19,7 +19,7 @@ class RAGEngine:
     def __init__(self):
         self.hf_token = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
         self.model_id = os.getenv(
-            "HF_MODEL_ID", "mistralai/Mistral-7B-Instruct-v0.2"
+            "HF_MODEL_ID", "mistralai/Mistral-7B-Instruct-v0.3"
         )
         self.embedding_model = os.getenv(
             "EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2"
