@@ -64,6 +64,22 @@ header h1 {
     color: #4caf50;
 }
 
+.clear-btn {
+    margin-left: 10px;
+    padding: 8px 16px;
+    background: #e74c3c;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background 0.2s;
+}
+
+.clear-btn:hover {
+    background: #c0392b;
+}
+
 #doc-list {
     margin-top: 8px;
     font-size: 0.85rem;
