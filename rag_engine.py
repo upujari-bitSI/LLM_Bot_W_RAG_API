@@ -19,7 +19,7 @@ class RAGEngine:
     def __init__(self):
         self.hf_token = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
         self.model_id = os.getenv(
-            "HF_MODEL_ID", "mistralai/Mistral-7B-Instruct-v0.2"
+            "HF_MODEL_ID", "Qwen/Qwen3-8B"
         )
         self.embedding_model = os.getenv(
             "EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2"
@@ -31,7 +31,7 @@ class RAGEngine:
         )
 
         self.client = InferenceClient(
-            token=self.hf_token if self.hf_token else None,
+            api_key=self.hf_token if self.hf_token else None,
         )
 
         self.vectorstore = None
